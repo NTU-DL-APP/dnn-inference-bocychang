@@ -1,4 +1,3 @@
-# train_model.py
 import tensorflow as tf
 import numpy as np
 import json
@@ -12,9 +11,9 @@ x_train, x_test = x_train / 255.0, x_test / 255.0
 # 2. 建立模型
 model = tf.keras.Sequential([
     tf.keras.layers.Flatten(input_shape=(28, 28)),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(64, activation='relu'),
-    tf.keras.layers.Dense(10, activation='softmax')
+    tf.keras.layers.Dense(128, activation='relu', name='dense1'),
+    tf.keras.layers.Dense(64, activation='relu', name='dense2'),
+    tf.keras.layers.Dense(10, activation='softmax', name='dense3')
 ])
 
 model.compile(optimizer='adam',
@@ -29,13 +28,34 @@ if not os.path.exists('model'):
     os.makedirs('model')
 model.save('model/fashion_mnist.h5')
 
-# 5. 儲存架構
+# 5. 儲存簡化架構
+arch = []
+for layer in model.layers:
+    ltype = type(layer).__name__
+    lname = layer.name
+    cfg = {}
+    wnames = []
+    if ltype == "Dense":
+        cfg = {
+            "units": layer.units,
+            "activation": layer.activation.__name__
+        }
+        wnames = [f"{lname}_kernel", f"{lname}_bias"]
+    elif ltype == "Flatten":
+        cfg = {}
+    arch.append({
+        "name": lname,
+        "type": ltype,
+        "config": cfg,
+        "weights": wnames
+    })
 with open('model/fashion_mnist.json', 'w') as f:
-    json.dump(json.loads(model.to_json()), f)
+    json.dump(arch, f)
 
-# 6. 儲存權重
+# 6. 儲存權重（名稱需與 arch 對應）
 weights = {}
 for layer in model.layers:
-    for i, w in enumerate(layer.get_weights()):
-        weights[f"{layer.name}_weight_{i}"] = w
+    if isinstance(layer, tf.keras.layers.Dense):
+        weights[f"{layer.name}_kernel"] = layer.get_weights()[0]
+        weights[f"{layer.name}_bias"] = layer.get_weights()[1]
 np.savez('model/fashion_mnist.npz', **weights)
