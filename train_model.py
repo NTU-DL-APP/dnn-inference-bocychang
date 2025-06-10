@@ -8,20 +8,22 @@ fashion_mnist = tf.keras.datasets.fashion_mnist
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
-# 2. 建立模型
+# 2. 建立更深更大的模型
 model = tf.keras.Sequential([
     tf.keras.layers.Flatten(input_shape=(28, 28)),
-    tf.keras.layers.Dense(128, activation='relu', name='dense1'),
-    tf.keras.layers.Dense(64, activation='relu', name='dense2'),
-    tf.keras.layers.Dense(10, activation='softmax', name='dense3')
+    tf.keras.layers.Dense(512, activation='relu', name='dense1'),
+    tf.keras.layers.Dense(256, activation='relu', name='dense2'),
+    tf.keras.layers.Dense(128, activation='relu', name='dense3'),
+    tf.keras.layers.Dense(64, activation='relu', name='dense4'),
+    tf.keras.layers.Dense(10, activation='softmax', name='dense5')
 ])
 
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-# 3. 訓練模型
-model.fit(x_train, y_train, epochs=20, validation_data=(x_test, y_test))
+# 3. 訓練模型（epochs 增加到 40）
+model.fit(x_train, y_train, epochs=40, batch_size=128, validation_data=(x_test, y_test))
 
 # 4. 儲存模型
 if not os.path.exists('model'):

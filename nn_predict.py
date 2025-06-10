@@ -7,7 +7,7 @@ def relu(x):
     return np.maximum(0, x)  
 
 def softmax(x):
-    # Numerically stable softmax
+     # Numerically stable softmax
     x = np.asarray(x)
     if x.ndim == 1:
         x = x - np.max(x)
@@ -16,11 +16,7 @@ def softmax(x):
     else:
         x = x - np.max(x, axis=-1, keepdims=True)
         exp_x = np.exp(x)
-        out = exp_x / np.sum(exp_x, axis=-1, keepdims=True)
-        # 如果 batch size 為 1，回傳 1D
-        if out.shape[0] == 1:
-            return out[0]
-        return out
+        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
     
 # === Flatten ===
 def flatten(x):
