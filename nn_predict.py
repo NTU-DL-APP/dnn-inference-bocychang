@@ -16,7 +16,11 @@ def softmax(x):
     else:
         x = x - np.max(x, axis=-1, keepdims=True)
         exp_x = np.exp(x)
-        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+        out = exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+        # 如果 batch size 為 1，回傳 1D
+        if out.shape[0] == 1:
+            return out[0]
+        return out
     
 # === Flatten ===
 def flatten(x):
