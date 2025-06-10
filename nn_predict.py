@@ -4,11 +4,19 @@ import json
 # === Activation functions ===
 def relu(x):
     # TODO: Implement the Rectified Linear Unit
-    return x
+    return np.maximum(0, x)  
 
 def softmax(x):
-    # TODO: Implement the SoftMax function
-    return x
+    # Numerically stable softmax
+    x = np.asarray(x)
+    if x.ndim == 1:
+        x = x - np.max(x)
+        exp_x = np.exp(x)
+        return exp_x / np.sum(exp_x)
+    else:
+        x = x - np.max(x, axis=-1, keepdims=True)
+        exp_x = np.exp(x)
+        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
 
 # === Flatten ===
 def flatten(x):
@@ -22,7 +30,7 @@ def dense(x, W, b):
 # Support only Dense, Flatten, relu, softmax now
 def nn_forward_h5(model_arch, weights, data):
     x = data
-    for layer in model_arch:
+    for layer in model_arch:                                                    
         lname = layer['name']
         ltype = layer['type']
         cfg = layer['config']
